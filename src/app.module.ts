@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import * as process from 'node:process';
 import { EnvConfig } from './config/env.config';
 import { JoiValidationSchema } from './config/joi.validation';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -21,9 +22,11 @@ import { JoiValidationSchema } from './config/joi.validation';
       port: +process.env.POSTGRES_HOST_PORT,
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
-      autoLoadEntities: true,
+      database: process.env.POSTGRES_DB,
+      autoLoadEntities: true, // Automatically load all entities
       synchronize: true, // Don't use this in production
     }),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

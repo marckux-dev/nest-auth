@@ -7,6 +7,7 @@ export const EnvConfig = () => ({
     port: +process.env.POSTGRES_HOST_PORT,
     user: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
+    db: process.env.POSTGRES_DB,
   },
   globalPrefix: process.env.GLOBAL_PREFIX || 'api',
 });
