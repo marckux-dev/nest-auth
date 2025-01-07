@@ -8,4 +8,5 @@ export const EnvConfig = () => ({
     user: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
   },
+  globalPrefix: process.env.GLOBAL_PREFIX || 'api',
 });
