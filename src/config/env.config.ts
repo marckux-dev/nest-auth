@@ -10,4 +10,8 @@ export const EnvConfig = () => ({
     db: process.env.POSTGRES_DB,
   },
   globalPrefix: process.env.GLOBAL_PREFIX || 'api',
+  jwt: {
+    secret: process.env.JWT_SECRET,
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  },
 });

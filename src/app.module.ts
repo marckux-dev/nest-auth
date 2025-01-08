@@ -1,11 +1,11 @@
+import * as process from 'node:process';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import * as process from 'node:process';
 import { EnvConfig } from './config/env.config';
 import { JoiValidationSchema } from './config/joi.validation';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
