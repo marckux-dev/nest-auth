@@ -5,6 +5,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Role } from '../interfaces';
 
 @Entity('users')
 export class User {
@@ -32,21 +33,21 @@ export class User {
     length: 255,
     nullable: false,
   })
-  fullName: string;
+  full_name: string;
 
   @Column({
     type: 'bool',
     nullable: false,
     default: true,
   })
-  isActive: boolean;
+  is_active: boolean;
 
   @Column({
     type: 'varchar',
     length: 255,
     array: true,
     nullable: false,
-    default: ['user'],
+    default: [Role.USER],
   })
   roles: string[];
 
@@ -57,6 +58,10 @@ export class User {
 
   @BeforeUpdate()
   emailToLowerCaseOnUpdate() {
-    this.email = this.email.toLowerCase();
+    this.email = this.email.toLowerCase().trim();
+  }
+
+  containsRole(role: Role): boolean {
+    return this.roles.includes(role);
   }
 }

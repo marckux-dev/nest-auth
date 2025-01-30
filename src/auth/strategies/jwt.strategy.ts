@@ -3,7 +3,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
-import { JwtPayloadInterface } from '../interfaces/jwt-payload.interface';
+import { JwtPayloadInterface } from '../interfaces';
 import { ConfigService } from '@nestjs/config';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
@@ -26,7 +26,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     if (!user) {
       throw new UnauthorizedException('Token is not valid');
     }
-    if (!user.isActive) {
+    if (!user.is_active) {
       throw new UnauthorizedException('User is inactive');
     }
     return user;

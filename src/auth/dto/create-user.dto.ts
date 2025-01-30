@@ -21,7 +21,7 @@ export class CreateUserDto {
 
   @IsString()
   @MinLength(2)
-  readonly fullName: string;
+  readonly full_name: string;
 
   @IsString({ each: true })
   @IsArray()
