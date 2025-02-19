@@ -5,14 +5,16 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateUserDto, LoginUserDto, UpdatePasswordUserDto } from './dto';
+import { CreateUserDto, LoginUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { JwtPayloadInterface, Role } from './interfaces';
 import { JwtService } from '@nestjs/jwt';
+import { generateSecurePassword } from '../common/helpers/string.helpers';
 
 @Injectable()
 export class AuthService {
@@ -23,69 +25,65 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<{ token: string }> {
-    const { password, ...userData } = createUserDto;
+  async create(
+    createUserDto: CreateUserDto,
+  ): Promise<{ password: string }> {
+    const password = createUserDto.password?? generateSecurePassword();
     const hashedPassword = bcrypt.hashSync(password, 10);
     const user = this.userRepository.create({
-      ...userData,
+      ...createUserDto,
       password: hashedPassword,
     });
     try {
       await this.userRepository.save(user);
-      const { id } = user;
-      return { token: this.getJwtToken({ id }) };
+      return {
+        password
+      };
     } catch (error) {
       this.handleError(error);
     }
   }
 
-  async login(loginUserDto: LoginUserDto): Promise<{ token: string }> {
-    const { email, password } = loginUserDto;
-    // TO DELETE:
-    console.log(bcrypt.hashSync(password, 10));
-    //
+  async login(
+    loginUserDto: LoginUserDto,
+  ): Promise<{ user: User; token: string }> {
+    const { full_name, password } = loginUserDto;
     const user = await this.userRepository.findOne({
-      where: { email },
-      select: ['id', 'email', 'password'],
+      where: { full_name },
+      select: ['id', 'full_name', 'password'],
     });
     if (!user || !bcrypt.compareSync(password, user.password)) {
       throw new UnauthorizedException('Invalid credentials');
     }
     const { id } = user;
-    return { token: this.getJwtToken({ id }) };
+    const userData = await this.userRepository.findOneBy({ id });
+    return {
+      token: this.getJwtToken({ id }),
+      user: userData,
+    };
   }
 
-  async updatePassword(
-    userId: string,
-    updatePasswordUserDto: UpdatePasswordUserDto,
-  ) {
-    const { oldPassword, newPassword, confirmPassword } = updatePasswordUserDto;
-    // Validate password confirmation
-    if (newPassword !== confirmPassword) {
-      throw new BadRequestException('Passwords do not match');
-    }
-    // Find the user
-    const user = await this.userRepository.findOne({
-      where: { id: userId },
-      select: ['id', 'password'],
-    });
+  async findAll(): Promise<User[]> {
+    return this.userRepository.find();
+  }
 
-    if (!user || !bcrypt.compareSync(oldPassword, user.password)) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    // Check if the new password is the same as the old password
-    if (bcrypt.compareSync(newPassword, user.password)) {
-      throw new BadRequestException('New password must be different');
-    }
-
+  async resetPassword(id: string): Promise<{password: string}> {
+    const user = await this.findOneById(id);
+    const password = generateSecurePassword();
     // Update the password
-    user.password = bcrypt.hashSync(newPassword, 10);
+    user.password = bcrypt.hashSync(password, 10);
     try {
       await this.userRepository.save(user);
+      return { password };
     } catch (error) {
       this.handleError(error);
     }
+  }
+
+  async findOneById(id: string): Promise<User> {
+    const userToFind = await this.userRepository.findOneBy({ id });
+    if (!userToFind) throw new NotFoundException('User not found');
+    return userToFind;
   }
 
   async upgrade(adminUser: User, id: string): Promise<void> {
@@ -183,5 +181,9 @@ export class AuthService {
     throw new InternalServerErrorException(
       'Something went wrong. See logs for more information.',
     );
+  }
+
+  deleteUser(id: string) {
+    return this.userRepository.delete({id});
   }
 }

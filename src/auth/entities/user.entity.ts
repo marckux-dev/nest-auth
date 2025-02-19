@@ -1,6 +1,6 @@
 import {
-  BeforeInsert,
-  BeforeUpdate,
+  // BeforeInsert,
+  // BeforeUpdate,
   Column,
   Entity,
   PrimaryGeneratedColumn,
@@ -12,54 +12,45 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({
-    type: 'varchar',
-    length: 255,
-    nullable: false,
-    unique: true,
-  })
-  email: string;
+  // @Column({
+  //   type: 'varchar',
+  //   length: 255,
+  //   nullable: false,
+  //   unique: true,
+  // })
+  // email: string;
 
   @Column({
-    type: 'varchar',
-    length: 255,
+    type    : 'varchar',
+    length  : 255,
     nullable: false,
-    select: false,
+    select  : false,
   })
-  password: string;
+  password  : string;
 
   @Column({
-    type: 'varchar',
-    length: 255,
+    type    : 'varchar',
+    length  : 255,
     nullable: false,
+    unique  : true
   })
-  full_name: string;
+  full_name : string;
 
   @Column({
-    type: 'bool',
+    type    : 'bool',
     nullable: false,
-    default: true,
+    default : true,
   })
-  is_active: boolean;
+  is_active : boolean;
 
   @Column({
-    type: 'varchar',
-    length: 255,
-    array: true,
+    type    : 'varchar',
+    length  : 255,
+    array   : true,
     nullable: false,
-    default: [Role.USER],
+    default : [Role.USER],
   })
-  roles: string[];
-
-  @BeforeInsert()
-  emailToLowerCase() {
-    this.email = this.email.toLowerCase().trim();
-  }
-
-  @BeforeUpdate()
-  emailToLowerCaseOnUpdate() {
-    this.email = this.email.toLowerCase().trim();
-  }
+  roles     : string[];
 
   containsRole(role: Role): boolean {
     return this.roles.includes(role);

@@ -8,6 +8,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { SeedModule } from './seed/seed.module';
+import { ProductModule } from './product/product.module';
+import { CenterModule } from './center/center.module';
+import { StockModule } from './stock/stock.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -27,8 +31,12 @@ import { SeedModule } from './seed/seed.module';
       autoLoadEntities: true, // Automatically load all entities
       synchronize: true, // Don't use this in production
     }),
+    EventEmitterModule.forRoot(),
     AuthModule,
     SeedModule,
+    ProductModule,
+    CenterModule,
+    StockModule,
   ],
   controllers: [AppController],
   providers: [AppService],
