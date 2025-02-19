@@ -19,6 +19,9 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     ConfigModule.forRoot({
       load: [EnvConfig],
       validationSchema: JoiValidationSchema,
+      envFilePath: process.env.NODE_ENV === 'prod' ?
+          '.env.prod'
+        : '.env.dev',
     }),
     // Connect to the database
     TypeOrmModule.forRoot({
